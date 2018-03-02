@@ -1,0 +1,107 @@
+---
+title: "Tutorial for R package `longsurvAccuracyMeasures`"
+author: "Marshall Brown"
+date: "3/2/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+options(width = 100)
+```
+
+
+
+# Tutorial 
+
+## Load the package
+
+Package can be downloaded directly from Github using the devtools package.
+
+```{r eval = FALSE}
+library(devtools)
+###install 
+devtools::install_github("mdbrown/longSurvAccuracyMeasures")
+```
+
+All package code is also available on Github here.
+
+```{r}
+#load libraries
+library(survival)
+library(tidyverse)
+library(partlyconditional)
+library(longsurvAccuracyMeasures)
+```
+
+
+### Simulated data
+
+For this tutorial, we use data on 478 simulated observations from 100 hypothetical individuals with repeated marker measurements. 'marker_1' was simulated to be associated with the outcome `status`, while 'marker_2' is simulated to be random noise. 
+
+```{r}
+data(pc_data)
+
+head(pc_data)
+```
+
+Note that `pc_data` is in 'long' format, with one row per measurement time. Each individual has a unique numeric subject id (`sub.id`) where event time (`time`) and event status (`status`) are repeated across marker measurement times (`meas.time`) given in months. 
+
+
+### Fit a partly conditional Cox model  using the `partlyconditional` R package 
+
+Below we use the function `PC.Cox` to fit a PC Cox model. To specify the model, we include information on patient id (`id`), survival time (`stime`), censoring status (`status`), measurement time (`measurement.time`), and markers.  Below we fit a model using raw  `meas.time` and two markers. Raw marker values are used in the model as predictors since `use.BLUP` is set to `FALSE` for both markers.  
+
+For more information on fitting partly conditional Cox or GLM models, please see the tutorial [here]{http://rpubs.com/mdbrown/partlyconditional}. 
+
+```{r}
+
+pc.cox.1 <-  PC.Cox(
+        id = "sub.id",
+        stime = "time",
+        status = "status",
+        measurement.time = "meas.time",  ##survival and measurement times must be on the same scale!!!
+        markers = c("marker_1", "marker_2"),
+        data = pc_data,
+        use.BLUP = c(FALSE, FALSE), 
+        knots.measurement.time = 3)
+
+pc.cox.1
+
+
+```
+
+## Model Evaluation 
+
+```{r}
+
+result <- PC.evaluation(pc.cox.1,
+                     newdata = pc_data,  
+                     conditioning.time = c(18, 24), 
+                     prediction.time = 12, 
+                     risk.threshold = .4, 
+                     pnf.threshold = .5, 
+                     pcf.threshold = .18, 
+                     bootstraps = 100) #should use more bootstrap replicates in practice. 
+
+result 
+
+```
+
+
+### Plot an ROC curve 
+
+Components to plot the ROC curve can be found in `result$roc`. 
+
+```{r}
+library(ggplot2)
+roc.data <- result$roc
+
+ggplot(roc.data, aes(FPF, TPF)) + 
+  geom_step(color = "dodgerblue") + 
+  geom_abline(slope = 1, intercept = 0, linetype = 2)
+
+```
+
+
+## Model Calibration 
