@@ -1,8 +1,8 @@
 #' Evaluate a partly conditional model
 #'
-#' Evaluate the predictive performance of a partly conditional (PC) model. This function estimates measures of accuracy for a model fit using the `partlyconditional` R package. Bootstrap confidence intervals are provided for summary measures at the risk threshold provided.
+#' Evaluate the predictive performance of a partly conditional (PC) model fit using the 'partlyconditional' R package.  Given validation data consisting of a time-to-event outcome and longitudinal marker information on a set of individuals up to a fixed time window (conditioning.time.window), this function estimates measures of prognostic accuracy for a specified future landmark prediction time ('prediction.time'). Bootstrap confidence intervals are provided for measures at the risk threshold provided.
 #'
-#' @param pc.object output from PC.Cox or PC.GLM functions in the `partlyconditional` R package used to fit partly conditional Cox/GLM models.
+#' @param pc.object output from PC.Cox or PC.GLM functions in the 'partlyconditional' R package used to fit partly conditional Cox/GLM models.
 #' @param newdata data.frame with new data for which to estimate summary measures. All variables used to fit the PC.Cox/PC.GLM model must be present. Observations with missing data will be removed.
 #' @param prediction.time  numeric value of prediction time (from conditioning.time) to estimate future risk. Prediction time should be on the same scale as the measurement time and the survival times provided to fit the partly conditional model.
 #' @param conditioning.time Time. All measurement times in newdata exceeding this conditioning time will be removed from analysis (and a message will be produced if silent = FALSE).
@@ -10,21 +10,25 @@
 #' @param pnf.threshold  threshold q to estimate the proportion needed to follow PNF(q). Defaults to q = .5. PNF(q), is the proportion of the population at highest risk that one needs classify high risk in order that a proportion q of the cases will be identified.
 #' @param pcf.threshold  threshold p to estimate the proportion of cases followed PCF(p) measure. Defaults to p = .25. PCF(p) is the proportion of cases included in the proportion p of individuals in the population at highest risk.
 #' @param bootstraps  Number of bootstraps used for confidence intervals and standard error estimation. Default is 500. Set to 0 if no CI's are desired. See note below for further information on CI construction.
-#' @param alpha  alpha level for confidence interval calculations. Default is 0.05 for 95% confidence intervals.
+#' @param alpha  alpha level for confidence interval calculations. Default is 0.05 for 95\% confidence intervals.
 #' @param silent set to TRUE to hide messages printed from function. Default is silent = FALSE.
 #'
-#' @return
-#' An object of class "pc_evaluate" which is a list containing:
 #'
-#' \item{measures }{tibble consisting of estimates for prediction error, AUC, true positive fraction (TPF), false positive fraction (FPF), positive predictive value (PPV), negative predictive value (NPV), proportion of cases followed (PCF), proportion needed to follow-up (PNF), proportion high risk, and outcome prevalence.  }
-#' \item{roc }{ tibble with components of the roc curve including, TPF, FPF, PPV, NPV, risk.threshold, and risk.percentile, at all risk thresholds observed.}
+#' @return
+#'
+#' An object of class 'pc_evaluate' which is a list containing:
+#'
+#' \item{measures}{tibble consisting of estimates for prediction error, AUC, true positive fraction (TPF), false positive fraction (FPF), positive predictive value (PPV), negative predictive value (NPV), proportion of cases followed (PCF), proportion needed to follow-up (PNF), proportion high risk, and outcome prevalence.  }
+#' \item{roc}{ tibble with components of the roc curve including, TPF, FPF, PPV, NPV, risk.threshold, and risk.percentile, at all risk thresholds observed.}
 #' \item{data.for.measures}{data used to , consists of all observations with measurement time within the conditioning.time window. }
 #' \item{call, bootstrap.info}{Inputs from function call. }
 #'
-#' @examples
+#'
+#'@examples
+#'
 #' library(partlyconditional)
 #' library(longsurvAccuracyMeasures)
-#'data(pc_data)
+#' data(pc_data)
 #'
 #'pc.model.1 <-  PC.Cox(
 #'  id = "sub.id",
@@ -38,25 +42,21 @@
 #'
 #'pc.model.1
 #'
-#'pc.model.1$model.fit #direct access to the coxph model object
+#'result <- PC.evaluation(pc.cox.1,
+#'                        newdata = pc_data,
+#'                        conditioning.time = c(18, 24), #make predictions using data up to time 18-24
+#'                        prediction.time = 12,  #one year predictions, conditional on historical data
+#'                        risk.threshold = .4,
+#'                        pnf.threshold = .5,
+#'                        pcf.threshold = .18,
+#'                        bootstraps = 25) #should use more bootstrap replicates in practice.
 #'
-#'#fit a model using natural cubic splines to model measurement time
-#'# and BLUPs to smooth marker measurements.
-#'pc.model.2 <-  PC.Cox(
-#'  id = "sub.id",
-#'  stime = "time",
-#'  status = "status",
-#'  measurement.time = "meas.time",
-#'  markers = c("marker", "marker_2"),
-#'  data = pc_data,
-#'  use.BLUP = c(TRUE, TRUE),
-#'  knots.measurement.time = 3)
-#'
-#'pc.model.2
+#'result
 #'
 #' @import dplyr
 #' @import survival
 #' @import partlyconditional
+#' @import tibble
 #' @export
 
 PC.evaluation <- function( pc.object,
