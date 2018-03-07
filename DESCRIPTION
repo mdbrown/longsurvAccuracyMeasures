@@ -1,12 +1,12 @@
 Package: longsurvAccuracyMeasures
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Evaluate a partly conditional model fit using the R package `partlyconditional`. Given validation data consisting of a time-to-event outcome and longitudinal marker information on a set of individuals up to a fixed time window, this package includes functions to assess model calibration and prognostic accuracy for a future landmark prediction time. Point estimates, along with bootstrap confidence intervals,  are provided for the following accuracy measures: AUC, ROC (TPF/FPF), PPV, NPV, PCF (proportion cases followed), and PNF (proportion needed to follow).
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Author:  Marlena Maziarz, Yingye Zheng, Marshall Brown
+Maintainer: Marshall Brown <mdbrown@fredhutch.org>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1

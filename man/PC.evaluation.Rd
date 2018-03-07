@@ -38,7 +38,7 @@ An object of class "pc_evaluate" which is a list containing:
 \item{call, bootstrap.info}{Inputs from function call. }
 }
 \description{
-Evaluate the predictive performance of a partly conditional (PC) model. This function estimates measures of accuracy for a model fit using the `partlyconditional` R package. Bootstrap confidence intervals are provided for summary measures at the risk threshold
+Evaluate the predictive performance of a partly conditional (PC) model. This function estimates measures of accuracy for a model fit using the `partlyconditional` R package. Bootstrap confidence intervals are provided for summary measures at the risk threshold provided.
 }
 \examples{
 library(partlyconditional)

@@ -1,20 +1,19 @@
 #' Evaluate a partly conditional model
 #'
-#' Evaluate the predictive performance of a partly conditional (PC) model. This function estimates measures of accuracy for a model fit using the `partlyconditional` R package. Bootstrap confidence intervals are provided for summary measures at the risk threshold
+#' Evaluate the predictive performance of a partly conditional (PC) model. This function estimates measures of accuracy for a model fit using the `partlyconditional` R package. Bootstrap confidence intervals are provided for summary measures at the risk threshold provided.
 #'
 #' @param pc.object output from PC.Cox or PC.GLM functions in the `partlyconditional` R package used to fit partly conditional Cox/GLM models.
 #' @param newdata data.frame with new data for which to estimate summary measures. All variables used to fit the PC.Cox/PC.GLM model must be present. Observations with missing data will be removed.
 #' @param prediction.time  numeric value of prediction time (from conditioning.time) to estimate future risk. Prediction time should be on the same scale as the measurement time and the survival times provided to fit the partly conditional model.
 #' @param conditioning.time Time. All measurement times in newdata exceeding this conditioning time will be removed from analysis (and a message will be produced if silent = FALSE).
 #' @param risk.threshold numeric threshold on the risk scale used to classify individuals as 'high-risk' for TPF, FPF, NPV, and PPV measures.
-#' @param pnf.threshold  threshold q to estimate the proportion needed to follow-up PNF(q). Defaults to q = .5. PNF(q), is the proportion of the population at highest risk that one needs classify high risk in order that a proportion q of the cases will be identified.
+#' @param pnf.threshold  threshold q to estimate the proportion needed to follow PNF(q). Defaults to q = .5. PNF(q), is the proportion of the population at highest risk that one needs classify high risk in order that a proportion q of the cases will be identified.
 #' @param pcf.threshold  threshold p to estimate the proportion of cases followed PCF(p) measure. Defaults to p = .25. PCF(p) is the proportion of cases included in the proportion p of individuals in the population at highest risk.
 #' @param bootstraps  Number of bootstraps used for confidence intervals and standard error estimation. Default is 500. Set to 0 if no CI's are desired. See note below for further information on CI construction.
 #' @param alpha  alpha level for confidence interval calculations. Default is 0.05 for 95% confidence intervals.
 #' @param silent set to TRUE to hide messages printed from function. Default is silent = FALSE.
 #'
 #' @return
-#'
 #' An object of class "pc_evaluate" which is a list containing:
 #'
 #' \item{measures }{tibble consisting of estimates for prediction error, AUC, true positive fraction (TPF), false positive fraction (FPF), positive predictive value (PPV), negative predictive value (NPV), proportion of cases followed (PCF), proportion needed to follow-up (PNF), proportion high risk, and outcome prevalence.  }
@@ -89,6 +88,8 @@ PC.evaluation <- function( pc.object,
   stopifnot(is.numeric(conditioning.time))
   stopifnot(length(conditioning.time) <= 2)
   if(length(conditioning.time) < 2) conditioning.time <- c(conditioning.time[1], conditioning.time[1])
+  conditioning.time <- sort(conditioning.time)
+
   stopifnot(is.numeric(bootstraps))
   stopifnot(is.numeric(risk.threshold))
   stopifnot(is.logical(silent))
