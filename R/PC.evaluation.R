@@ -5,7 +5,7 @@
 #' @param pc.object output from PC.Cox or PC.GLM functions in the 'partlyconditional' R package used to fit partly conditional Cox/GLM models.
 #' @param newdata data.frame with new data for which to estimate summary measures. All variables used to fit the PC.Cox/PC.GLM model must be present. Observations with missing data will be removed.
 #' @param prediction.time  numeric value of prediction time (from conditioning.time) to estimate future risk. Prediction time should be on the same scale as the measurement time and the survival times provided to fit the partly conditional model.
-#' @param conditioning.time Time. All measurement times in newdata exceeding this conditioning time will be removed from analysis (and a message will be produced if silent = FALSE).
+#' @param conditioning.time.window Time. All measurement times in newdata exceeding this conditioning time will be removed from analysis (and a message will be produced if silent = FALSE).
 #' @param risk.threshold numeric threshold on the risk scale used to classify individuals as 'high-risk' for TPF, FPF, NPV, and PPV measures.
 #' @param pnf.threshold  threshold q to estimate the proportion needed to follow PNF(q). Defaults to q = .5. PNF(q), is the proportion of the population at highest risk that one needs classify high risk in order that a proportion q of the cases will be identified.
 #' @param pcf.threshold  threshold p to estimate the proportion of cases followed PCF(p) measure. Defaults to p = .25. PCF(p) is the proportion of cases included in the proportion p of individuals in the population at highest risk.
@@ -20,7 +20,7 @@
 #'
 #' \item{measures}{tibble consisting of estimates for prediction error, AUC, true positive fraction (TPF), false positive fraction (FPF), positive predictive value (PPV), negative predictive value (NPV), proportion of cases followed (PCF), proportion needed to follow-up (PNF), proportion high risk, and outcome prevalence.  }
 #' \item{roc}{ tibble with components of the roc curve including, TPF, FPF, PPV, NPV, risk.threshold, and risk.percentile, at all risk thresholds observed.}
-#' \item{data.for.measures}{data used to , consists of all observations with measurement time within the conditioning.time window. }
+#' \item{data.for.measures}{data used to , consists of all observations with measurement time within the conditioning.time.window window. }
 #' \item{call, bootstrap.info}{Inputs from function call. }
 #'
 #'
@@ -44,7 +44,7 @@
 #'
 #'result <- PC.evaluation(pc.cox.1,
 #'                        newdata = pc_data,
-#'                        conditioning.time = c(18, 24), #make predictions using data up to time 18-24
+#'                        conditioning.time.window = c(18, 24), #make predictions using data up to time 18-24
 #'                        prediction.time = 12,  #one year predictions, conditional on historical data
 #'                        risk.threshold = .4,
 #'                        pnf.threshold = .5,
@@ -62,7 +62,7 @@
 PC.evaluation <- function( pc.object,
                            newdata,
                            prediction.time = NULL,
-                           conditioning.time = NULL,
+                           conditioning.time.window = NULL,
                            risk.threshold,
                            pnf.threshold = .5,
                            pcf.threshold = .25,
@@ -85,10 +85,10 @@ PC.evaluation <- function( pc.object,
   }
 
 
-  stopifnot(is.numeric(conditioning.time))
-  stopifnot(length(conditioning.time) <= 2)
-  if(length(conditioning.time) < 2) conditioning.time <- c(conditioning.time[1], conditioning.time[1])
-  conditioning.time <- sort(conditioning.time)
+  stopifnot(is.numeric(conditioning.time.window))
+  stopifnot(length(conditioning.time.window) <= 2)
+  if(length(conditioning.time.window) < 2) conditioning.time.window <- c(conditioning.time.window[1], conditioning.time.window[1])
+  conditioning.time.window <- sort(conditioning.time.window)
 
   stopifnot(is.numeric(bootstraps))
   stopifnot(is.numeric(risk.threshold))
@@ -98,16 +98,16 @@ PC.evaluation <- function( pc.object,
   stopifnot(pcf.threshold < 1 & pcf.threshold > 0)
 
   #define some variables
-  landmark.time <- conditioning.time[2] + prediction.time
+  landmark.time <- conditioning.time.window[2] + prediction.time
 
   meas.time.name <- pc.object$variable.names[[4]]
 
   #filter out all measurement times greater than conditioning time. print a
   #message if silent is not TRUE
-  newdata.si <- subset(newdata, newdata[[meas.time.name]] <= conditioning.time)
+  newdata.si <- subset(newdata, newdata[[meas.time.name]] <= conditioning.time.window)
 
   if(!silent & nrow(newdata.si) < nrow(newdata) ){
-   cat(paste0("... removing ",  nrow(newdata) - nrow(newdata.si) , " observations where ", meas.time.name, " is greater than conditioning.time = ", conditioning.time, ".\n"))
+   cat(paste0("... removing ",  nrow(newdata) - nrow(newdata.si) , " observations where ", meas.time.name, " is greater than conditioning.time.window = ", conditioning.time.window, ".\n"))
   }
 
 
@@ -115,15 +115,15 @@ PC.evaluation <- function( pc.object,
 
   risk_dat  <- predict(pc.object, newdata = newdata.si, prediction.time = prediction.time)
   risk_dat.si <- subset(risk_dat,
-                        risk_dat[[meas.time.name]] <= conditioning.time[2] &
-                        risk_dat[[meas.time.name]] >= conditioning.time[1])
+                        risk_dat[[meas.time.name]] <= conditioning.time.window[2] &
+                        risk_dat[[meas.time.name]] >= conditioning.time.window[1])
   if(!silent){
-    cat(paste0("... calculating summary measures using ", nrow(risk_dat.si), " observations within conditioning time window  [", paste(conditioning.time, collapse = ", " ), "].\n"))
+    cat(paste0("... calculating summary measures using ", nrow(risk_dat.si), " observations within conditioning time window  [", paste(conditioning.time.window, collapse = ", " ), "].\n"))
   }
   #
   dc <- list(ti = landmark.time,
              pred.time = prediction.time,
-             si = conditioning.time[2])
+             si = conditioning.time.window[2])
 
   timevar.name <- pc.object$variable.names[[2]]
   status.name <- pc.object$variable.names[[3]]

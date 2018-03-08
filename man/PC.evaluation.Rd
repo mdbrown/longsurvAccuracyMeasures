@@ -5,7 +5,7 @@
 \title{Evaluate a partly conditional model}
 \usage{
 PC.evaluation(pc.object, newdata, prediction.time = NULL,
-  conditioning.time = NULL, risk.threshold, pnf.threshold = 0.5,
+  conditioning.time.window = NULL, risk.threshold, pnf.threshold = 0.5,
   pcf.threshold = 0.25, bootstraps = 500, alpha = 0.05, silent = FALSE)
 }
 \arguments{
@@ -15,7 +15,7 @@ PC.evaluation(pc.object, newdata, prediction.time = NULL,
 
 \item{prediction.time}{numeric value of prediction time (from conditioning.time) to estimate future risk. Prediction time should be on the same scale as the measurement time and the survival times provided to fit the partly conditional model.}
 
-\item{conditioning.time}{Time. All measurement times in newdata exceeding this conditioning time will be removed from analysis (and a message will be produced if silent = FALSE).}
+\item{conditioning.time.window}{Time. All measurement times in newdata exceeding this conditioning time will be removed from analysis (and a message will be produced if silent = FALSE).}
 
 \item{risk.threshold}{numeric threshold on the risk scale used to classify individuals as 'high-risk' for TPF, FPF, NPV, and PPV measures.}
 
@@ -34,7 +34,7 @@ An object of class 'pc_evaluate' which is a list containing:
 
 \item{measures}{tibble consisting of estimates for prediction error, AUC, true positive fraction (TPF), false positive fraction (FPF), positive predictive value (PPV), negative predictive value (NPV), proportion of cases followed (PCF), proportion needed to follow-up (PNF), proportion high risk, and outcome prevalence.  }
 \item{roc}{ tibble with components of the roc curve including, TPF, FPF, PPV, NPV, risk.threshold, and risk.percentile, at all risk thresholds observed.}
-\item{data.for.measures}{data used to , consists of all observations with measurement time within the conditioning.time window. }
+\item{data.for.measures}{data used to , consists of all observations with measurement time within the conditioning.time.window window. }
 \item{call, bootstrap.info}{Inputs from function call. }
 }
 \description{
@@ -60,7 +60,7 @@ pc.model.1
 
 result <- PC.evaluation(pc.cox.1,
                        newdata = pc_data,
-                       conditioning.time = c(18, 24), #make predictions using data up to time 18-24
+                       conditioning.time.window = c(18, 24), #make predictions using data up to time 18-24
                        prediction.time = 12,  #one year predictions, conditional on historical data
                        risk.threshold = .4,
                        pnf.threshold = .5,
