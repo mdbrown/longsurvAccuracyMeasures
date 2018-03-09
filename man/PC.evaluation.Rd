@@ -34,14 +34,16 @@ An object of class 'pc_evaluate' which is a list containing:
 
 \item{measures}{tibble consisting of estimates for prediction error, AUC, true positive fraction (TPF), false positive fraction (FPF), positive predictive value (PPV), negative predictive value (NPV), proportion of cases followed (PCF), proportion needed to follow-up (PNF), proportion high risk, and outcome prevalence.  }
 \item{roc}{ tibble with components of the roc curve including, TPF, FPF, PPV, NPV, risk.threshold, and risk.percentile, at all risk thresholds observed.}
-\item{data.for.measures}{data used to , consists of all observations with measurement time within the conditioning.time.window window. }
+\item{data.for.measures}{data used to estimate summary measures. Consists of all observations with measurement time within the conditioning.time.window window. If two observations from the same 'individual' fall within this time window, the observation with greater measurement time is used.}
 \item{call, bootstrap.info}{Inputs from function call. }
 }
 \description{
 Evaluate the predictive performance of a partly conditional (PC) model fit using the 'partlyconditional' R package.  Given validation data consisting of a time-to-event outcome and longitudinal marker information on a set of individuals up to a fixed time window (conditioning.time.window), this function estimates measures of prognostic accuracy for a specified future landmark prediction time ('prediction.time'). Bootstrap confidence intervals are provided for measures at the risk threshold provided.
 }
 \details{
+Summary measures are estimated using the set of observations with measurement time falling within the conditioning window set by 'conditioning.time.window'. If two observations from the same 'individual' fall within this time window, the observation with greater measurement time is used. These data can be accessed in the 'data.for.measures' element of the list returned from this function.
 
+Bootstrap standard error estimates and confidence intervals are constructed by resampling from this set of observations as well. The upper and lower CI bounds are calculated using the 1-alpha/2 and alpha/2 quantiles from the empirical bootstrap distribution for each measure. It is important to note that CI's are calculated conditional on the fitted model provided. An alternative bootstrapping routine should be run where the PC model is re-fit and evaluated in each bootstrap sample if the user wishes to account for the variation due to model fitting in standard error/CI estimates.
 }
 \examples{
 
