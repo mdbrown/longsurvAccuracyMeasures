@@ -4,7 +4,7 @@ username:
 account: rpubs
 server: rpubs.com
 hostUrl: rpubs.com
-appId: https://api.rpubs.com/api/v1/document/365885/fbf6dd5f13604f23a0971366cdbc162b
-bundleId: https://api.rpubs.com/api/v1/document/365885/fbf6dd5f13604f23a0971366cdbc162b
-url: http://rpubs.com/mdbrown/365885
-when: 1520546682.69956
+appId: https://api.rpubs.com/api/v1/document/368257/ee45a53eb78447efb8d1116734524012
+bundleId: https://api.rpubs.com/api/v1/document/368257/ee45a53eb78447efb8d1116734524012
+url: http://rpubs.com/publish/claim/368257/a2fab05b9e444b84bcb62385129d5e5c
+when: 1520635646.17257

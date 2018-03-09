@@ -92,7 +92,7 @@ PC.calibration <- function( pc.object,
   newdata.si <- subset(newdata, newdata[[meas.time.name]] <= conditioning.time.window)
 
   if(!silent & nrow(newdata.si) < nrow(newdata) ){
-    cat(paste0("... removing ",  nrow(newdata) - nrow(newdata.si) , " observations where ", meas.time.name, " is greater than conditioning.time.window = ", conditioning.time.window, ".\n"))
+    cat(paste0("... removing ",  nrow(newdata) - nrow(newdata.si) , " observations where ", meas.time.name, " is greater than conditioning.time.window = ", conditioning.time.window[2], ".\n"))
   }
 
 
@@ -103,7 +103,7 @@ PC.calibration <- function( pc.object,
                         risk_dat[[meas.time.name]] <= conditioning.time.window[2] &
                           risk_dat[[meas.time.name]] >= conditioning.time.window[1])
   if(!silent){
-    cat(paste0("... assessing calibration using ", nrow(risk_dat.si), " observations within conditioning time window  [", paste(conditioning.time.window, collapse = ", " ), "].\n"))
+    cat(paste0("... assessing calibration using ", nrow(risk_dat.si), " observations with measurement times within the conditioning time window  [", paste(conditioning.time.window, collapse = ", " ), "].\n"))
   }
   #
   dc <- list(ti = landmark.time,
