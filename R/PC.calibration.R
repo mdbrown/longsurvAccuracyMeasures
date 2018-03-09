@@ -1,18 +1,23 @@
-#' Check calibration of a partly conditional model
+#' Assess calibration of a partly conditional model
 #'
-#' Check model calibration for a partly conditional (PC) model fit using the 'partlyconditional' R package.  Given validation data consisting of a time-to-event outcome and longitudinal marker information on a set of individuals up to a fixed time window (conditioning.time.window), this function assesses model calibration for for risks estimated at a specified future landmark prediction time ('prediction.time').
+#' Assess model calibration for a partly conditional (PC) model fit using the 'partlyconditional' R package. For 'newdata' consisting of a time-to-event outcome and longitudinal marker information on a set of individuals up to a fixed time window (conditioning.time.window), this function calculates the predicted risks from the model at a specified future landmark prediction time ('prediction.time'). It then bins observations using the percentiles of predicted risk (use 'n.groups' to set how many bins) and calculates observed risk using the Kaplan-Meier estimator. KM-based confidence intervals for observed risk are also provided.
 #'
 #' @param pc.object output from PC.Cox or PC.GLM functions in the 'partlyconditional' R package used to fit partly conditional Cox/GLM models.
 #' @param newdata data.frame with new data for which to estimate summary measures. All variables used to fit the PC.Cox/PC.GLM model must be present. Observations with missing data will be removed.
-#' @param prediction.time  numeric value of prediction time (from conditioning.time) to estimate future risk. Prediction time should be on the same scale as the measurement time and the survival times provided to fit the partly conditional model.
+#' @param prediction.time  numeric value of prediction time (from conditioning.time into the future) to estimate future risk. Prediction time should be on the same scale as the measurement time and the survival times provided to fit the partly conditional model.
 #' @param conditioning.time.window Time. All measurement times in newdata exceeding this conditioning time will be removed from analysis (and a message will be produced if silent = FALSE).
+#' @param n.groups number of groups to bin observations (using predicted risks) to calculate
 #' @param alpha  alpha level for confidence interval calculations. Default is 0.05 for 95\% confidence intervals.
+#' @param plot set to TRUE to generate a plot of
 #' @param silent set to TRUE to hide messages printed from function. Default is silent = FALSE.
 #'
 #'
 #' @return
 #'
-#' tibble consisting of estimates for prediction error, AUC, true positive fraction (TPF), false positive fraction (FPF), positive predictive value (PPV), negative predictive value (NPV), proportion of cases followed (PCF), proportion needed to follow-up (PNF), proportion high risk, and outcome prevalence.
+#' a list with two elements
+#'
+#' \item{observed}{tibble consisting of }
+#'
 #'
 #'@examples
 #'
@@ -32,6 +37,13 @@
 #'
 #'pc.model.1
 #'
+#'calibration.result <- PC.calibration( pc.model.1,
+#'                                      newdata = pc_data,
+#'                                      conditioning.time.window = c(18, 24),
+#'                                      prediction.time = 12,
+#'                                      n.groups = 8)
+#' calibration.result$observed
+#' calibration.result$predicted
 #'
 #' @import dplyr
 #' @import survival
@@ -117,14 +129,14 @@ PC.calibration <- function( pc.object,
 
 
   #average predicted risks by group
-  obs.dat <- data.frame("observed" = 1- obs.risk$surv,
+  obs.dat <- data.frame("observed.risk" = 1- obs.risk$surv,
                         "lower" = 1-obs.risk$upper,
                         "upper" = 1-obs.risk$lower,
                         "percentile" = c(c(1:n.groups/n.groups)[-n.groups], 1) - 1/(n.groups*2))
 
 
-  risk.dat = data.frame("risk" = risk,
-                    "percentile" = rank(risk)/length(risk))
+  risk.dat = data.frame("predicted.risk" = risk,
+                        "percentile" = rank(risk)/length(risk))
 
 
     if(plot){
@@ -134,9 +146,8 @@ PC.calibration <- function( pc.object,
          ylab="Risk Probability",
          xlim=c(0,1),ylim=c(0,1),cex.lab=1.2, type = "l")
     points(obs.dat$percentile,obs.dat$observed,pch=15)
-    segments(obs.dat$percentile,obs.dat$observed,obs.dat$percentile,obs.dat$lower)
-    segments(obs.dat$percentile,obs.dat$observed,obs.dat$percentile,obs.dat$upper)
-
+    segments(obs.dat$percentile,obs.dat$observed,obs.dat$percentile,obs.dat$lower, lty = 2)
+    segments(obs.dat$percentile,obs.dat$observed,obs.dat$percentile,obs.dat$upper, lty = 2)
     }
     #plot(1, type="n", axes=F, xlab="", ylab="")
     #legend(.6,1,cex=1.3,c('Model Predicted','Observed'),pch=c(1,15),bty = "n")

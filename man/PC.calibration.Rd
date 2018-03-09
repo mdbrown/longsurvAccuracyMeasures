@@ -2,7 +2,7 @@
 % Please edit documentation in R/PC.calibration.R
 \name{PC.calibration}
 \alias{PC.calibration}
-\title{Check calibration of a partly conditional model}
+\title{Assess calibration of a partly conditional model}
 \usage{
 PC.calibration(pc.object, newdata, prediction.time, conditioning.time.window,
   n.groups = 10, alpha = 0.05, plot = TRUE, silent = FALSE)
@@ -12,19 +12,25 @@ PC.calibration(pc.object, newdata, prediction.time, conditioning.time.window,
 
 \item{newdata}{data.frame with new data for which to estimate summary measures. All variables used to fit the PC.Cox/PC.GLM model must be present. Observations with missing data will be removed.}
 
-\item{prediction.time}{numeric value of prediction time (from conditioning.time) to estimate future risk. Prediction time should be on the same scale as the measurement time and the survival times provided to fit the partly conditional model.}
+\item{prediction.time}{numeric value of prediction time (from conditioning.time into the future) to estimate future risk. Prediction time should be on the same scale as the measurement time and the survival times provided to fit the partly conditional model.}
 
 \item{conditioning.time.window}{Time. All measurement times in newdata exceeding this conditioning time will be removed from analysis (and a message will be produced if silent = FALSE).}
 
+\item{n.groups}{number of groups to bin observations (using predicted risks) to calculate}
+
 \item{alpha}{alpha level for confidence interval calculations. Default is 0.05 for 95\% confidence intervals.}
+
+\item{plot}{set to TRUE to generate a plot of}
 
 \item{silent}{set to TRUE to hide messages printed from function. Default is silent = FALSE.}
 }
 \value{
-tibble consisting of estimates for prediction error, AUC, true positive fraction (TPF), false positive fraction (FPF), positive predictive value (PPV), negative predictive value (NPV), proportion of cases followed (PCF), proportion needed to follow-up (PNF), proportion high risk, and outcome prevalence.
+a list with two elements
+
+\item{observed}{tibble consisting of }
 }
 \description{
-Check model calibration for a partly conditional (PC) model fit using the 'partlyconditional' R package.  Given validation data consisting of a time-to-event outcome and longitudinal marker information on a set of individuals up to a fixed time window (conditioning.time.window), this function assesses model calibration for for risks estimated at a specified future landmark prediction time ('prediction.time').
+Assess model calibration for a partly conditional (PC) model fit using the 'partlyconditional' R package. For 'newdata' consisting of a time-to-event outcome and longitudinal marker information on a set of individuals up to a fixed time window (conditioning.time.window), this function calculates the predicted risks from the model at a specified future landmark prediction time ('prediction.time'). It then bins observations using the percentiles of predicted risk (use 'n.groups' to set how many bins) and calculates observed risk using the Kaplan-Meier estimator. KM-based confidence intervals for observed risk are also provided.
 }
 \examples{
 
@@ -44,5 +50,12 @@ pc.model.1 <-  PC.Cox(
 
 pc.model.1
 
+calibration.result <- PC.calibration( pc.model.1,
+                                     newdata = pc_data,
+                                     conditioning.time.window = c(18, 24),
+                                     prediction.time = 12,
+                                     n.groups = 8)
+calibration.result$observed
+calibration.result$predicted
 
 }

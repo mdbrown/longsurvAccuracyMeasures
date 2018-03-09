@@ -9,10 +9,11 @@
 #' @param risk.threshold numeric threshold on the risk scale used to classify individuals as 'high-risk' for TPF, FPF, NPV, and PPV measures.
 #' @param pnf.threshold  threshold q to estimate the proportion needed to follow PNF(q). Defaults to q = .5. PNF(q), is the proportion of the population at highest risk that one needs classify high risk in order that a proportion q of the cases will be identified.
 #' @param pcf.threshold  threshold p to estimate the proportion of cases followed PCF(p) measure. Defaults to p = .25. PCF(p) is the proportion of cases included in the proportion p of individuals in the population at highest risk.
-#' @param bootstraps  Number of bootstraps used for confidence intervals and standard error estimation. Default is 500. Set to 0 if no CI's are desired. See note below for further information on CI construction.
+#' @param bootstraps  Number of bootstraps used for confidence intervals and standard error estimation. Default is 500. Set to 0 if no CI's are desired. See details below for further information on CI construction.
 #' @param alpha  alpha level for confidence interval calculations. Default is 0.05 for 95\% confidence intervals.
 #' @param silent set to TRUE to hide messages printed from function. Default is silent = FALSE.
 #'
+#' @details
 #'
 #' @return
 #'

@@ -23,7 +23,7 @@ PC.evaluation(pc.object, newdata, prediction.time = NULL,
 
 \item{pcf.threshold}{threshold p to estimate the proportion of cases followed PCF(p) measure. Defaults to p = .25. PCF(p) is the proportion of cases included in the proportion p of individuals in the population at highest risk.}
 
-\item{bootstraps}{Number of bootstraps used for confidence intervals and standard error estimation. Default is 500. Set to 0 if no CI's are desired. See note below for further information on CI construction.}
+\item{bootstraps}{Number of bootstraps used for confidence intervals and standard error estimation. Default is 500. Set to 0 if no CI's are desired. See details below for further information on CI construction.}
 
 \item{alpha}{alpha level for confidence interval calculations. Default is 0.05 for 95\% confidence intervals.}
 
@@ -39,6 +39,9 @@ An object of class 'pc_evaluate' which is a list containing:
 }
 \description{
 Evaluate the predictive performance of a partly conditional (PC) model fit using the 'partlyconditional' R package.  Given validation data consisting of a time-to-event outcome and longitudinal marker information on a set of individuals up to a fixed time window (conditioning.time.window), this function estimates measures of prognostic accuracy for a specified future landmark prediction time ('prediction.time'). Bootstrap confidence intervals are provided for measures at the risk threshold provided.
+}
+\details{
+
 }
 \examples{
 
