@@ -24,7 +24,7 @@ library(devtools)
 devtools::install_github("mdbrown/longSurvAccuracyMeasures")
 ```
 
-All package code is also available on Github [here](https://github.com/mdbrown/longsurvAccuracyMeasures).
+All package code is also available on [Github](https://github.com/mdbrown/longsurvAccuracyMeasures).
 
 ```{r}
 #load libraries
@@ -52,7 +52,7 @@ Note that `pc_data` is in 'long' format, with one row per measurement time. Each
 
 Below we use the function `PC.Cox` to fit a PC Cox model. To specify the model, we include information on patient id (`id`), survival time (`stime`), censoring status (`status`), measurement time (`measurement.time`), and markers.  Below we fit a model using raw  `meas.time` and two markers. Raw marker values are used in the model as predictors since `use.BLUP` is set to `FALSE` for both markers.  
 
-For more information on fitting partly conditional Cox or GLM models, please see the tutorial [here](http://rpubs.com/mdbrown/partlyconditional). 
+For more information on fitting partly conditional Cox or GLM models, please see the tutorial for the R package [partlyconditional](http://rpubs.com/mdbrown/partlyconditional). 
 
 ```{r}
 
@@ -111,7 +111,8 @@ calibration.result <- PC.calibration( pc.cox.1,
                                       newdata = pc_data,  
                                       conditioning.time.window = c(18, 24), 
                                       prediction.time = 12, 
-                                      n.groups = 8)
+                                      n.groups = 8, 
+                                      plot = TRUE)
 calibration.result$observed
 calibration.result$predicted
 ```

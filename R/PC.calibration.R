@@ -140,14 +140,14 @@ PC.calibration <- function( pc.object,
 
 
     if(plot){
-      order = order(risk.dat$risk)
-    plot(risk.dat$percentile[order],risk.dat$risk[order],
+      order = order(risk.dat$predicted.risk)
+    plot(risk.dat$percentile[order],risk.dat$predicted.risk[order],
          xlab="Percentile",
          ylab="Risk Probability",
-         xlim=c(0,1),ylim=c(0,1),cex.lab=1.2, type = "l")
-    points(obs.dat$percentile,obs.dat$observed,pch=15)
-    segments(obs.dat$percentile,obs.dat$observed,obs.dat$percentile,obs.dat$lower, lty = 2)
-    segments(obs.dat$percentile,obs.dat$observed,obs.dat$percentile,obs.dat$upper, lty = 2)
+         xlim=c(0,1),ylim=c(0,1),cex.lab=1.2, type = "l", lty = 2, lwd = 2)
+    points(obs.dat$percentile,obs.dat$observed.risk,pch=19)
+    segments(obs.dat$percentile,obs.dat$observed.risk,obs.dat$percentile,obs.dat$lower, lty = 1,lwd = 1.5)
+    segments(obs.dat$percentile,obs.dat$observed.risk,obs.dat$percentile,obs.dat$upper, lty = 1, lwd = 1.5)
     }
     #plot(1, type="n", axes=F, xlab="", ylab="")
     #legend(.6,1,cex=1.3,c('Model Predicted','Observed'),pch=c(1,15),bty = "n")
