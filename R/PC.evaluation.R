@@ -110,7 +110,7 @@ PC.evaluation <- function( pc.object,
 
   #filter out all measurement times greater than conditioning time. print a
   #message if silent is not TRUE
-  newdata.si <- subset(newdata, newdata[[meas.time.name]] <= conditioning.time.window)
+  newdata.si <- subset(newdata, newdata[[meas.time.name]] <= conditioning.time.window[2])
 
   if(!silent & nrow(newdata.si) < nrow(newdata) ){
    cat(paste0("... removing ",  nrow(newdata) - nrow(newdata.si) , " observations where ", meas.time.name, " is greater than conditioning.time.window = ", conditioning.time.window[2], ".\n"))
