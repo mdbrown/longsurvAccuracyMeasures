@@ -81,14 +81,14 @@ Summary measures are estimated using the set of observations with measurement ti
 
 result <- PC.evaluation(pc.cox.1,
                      newdata = pc_data,  
-                     conditioning.time.window = c(18, 24), 
+                     conditioning.time.window = c(18,24), 
                      prediction.time = 12, 
                      risk.threshold = .4, 
                      pnf.threshold = .5, 
                      pcf.threshold = .18, 
                      bootstraps = 100) #should use more bootstrap replicates in practice. 
 
-result
+result$bootstrap.info$bootstrap.distribution %>% View()
 
 ```
 

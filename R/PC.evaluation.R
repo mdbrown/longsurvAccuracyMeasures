@@ -103,43 +103,63 @@ PC.evaluation <- function( pc.object,
   stopifnot(pnf.threshold < 1 & pnf.threshold > 0)
   stopifnot(pcf.threshold < 1 & pcf.threshold > 0)
 
+  #only keep complete cases
+  #check if newdata has the right variables
+  if(!all(is.element(pc.object$variable.names, names(newdata)) )){
+    stop("variable(s): {", paste(pc.object$names[which(!is.element(pc.object$variable.names, names(newdata)))], collapse = ", "), "}, not found in 'newdata' ")
+  }
+
+
+  #only keep complete cases
+  mycomplete <- complete.cases(newdata[,pc.object$variable.names]);
+
+  #check for missing data and throw it out, print a warning
+  if(nrow(newdata)!=sum(mycomplete)){
+    warning(paste(nrow(newdata)-sum(mycomplete), "observation(s) were removed due to missing data \n New sample size is now:", sum(mycomplete)))
+    newdata <- newdata[mycomplete,]
+
+  }
+
+
   #define some variables
   landmark.time <- conditioning.time.window[2] + prediction.time
   meas.time.name <- pc.object$variable.names[[4]]
 
-  
+
   timevar.name <- pc.object$variable.names[[2]]
   status.name <- pc.object$variable.names[[3]]
-  
+
   dc <- list(ti = landmark.time,
              pred.time = prediction.time,
              si = conditioning.time.window[2])
-  
-  newdata2 <- subset(newdata, newdata[[timevar.name]] <= conditioning.time.window[2])
-  
-  #filter out all observations with survival times less than conditioning time[2]. print a
-  #message if silent is not TRUE
-  if(!silent & nrow(newdata2) < nrow(newdata) ){
-    cat(paste0("... removing ",  nrow(newdata) - nrow(newdata2) , " observations where outcome time ", timevar.name, " is less than conditioning.time.window = ", conditioning.time.window[2], ".\n"))
+
+  #remove any observations with survival time less than meas.time
+  wonky.times <- newdata[[timevar.name]] < newdata[[meas.time.name]]
+  if(any(wonky.times) & !silent) {
+    cat(paste0("... removing ",  sum(wonky.times) , " observations where ", meas.time.name, " is greater than outcome variable ", timevar.name, ".\n"))
   }
-  
+
+  newdata <- newdata[!wonky.times,]
+
   #filter out all measurement times greater than conditioning time. print a
   #message if silent is not TRUE
-  newdata.si <- subset(newdata2, newdata2[[meas.time.name]] <= conditioning.time.window[2])
-  
-  if(!silent & nrow(newdata.si) < nrow(newdata2) ){
+  newdata.si <- subset(newdata, newdata[[meas.time.name]] <= conditioning.time.window[2])
+
+  if(!silent & nrow(newdata.si) < nrow(newdata) ){
    cat(paste0("... removing ",  nrow(newdata) - nrow(newdata.si) , " observations where ", meas.time.name, " is greater than conditioning.time.window = ", conditioning.time.window[2], ".\n"))
   }
-  rm(newdata2)
 
- 
-  
+
+
+
   #get predicted risks on new data
 
   risk_dat  <- predict(pc.object, newdata = newdata.si, prediction.time = prediction.time)
   risk_dat.si <- subset(risk_dat,
                         risk_dat[[meas.time.name]] <= conditioning.time.window[2] &
                         risk_dat[[meas.time.name]] >= conditioning.time.window[1])
+  if(nrow(risk_dat.si) ==0) stop("No observations within conditioning time window specified.")
+
   if(!silent){
     cat(paste0("... calculating summary measures using ", nrow(risk_dat.si), " observations with measurement times within the conditioning time window  [", paste(conditioning.time.window, collapse = ", " ), "].\n"))
   }
@@ -173,16 +193,21 @@ PC.evaluation <- function( pc.object,
 
 
     }
-    stats$se <- apply(bootstrap.measures.dist, 1, sd)
-    stats$lower <- apply(bootstrap.measures.dist, 1, quantile, type = 1, prob = alpha/2)
-    stats$upper <- apply(bootstrap.measures.dist, 1, quantile, type = 1, prob = 1-alpha/2)
+    stats$se <- apply(bootstrap.measures.dist, 1, sd, na.rm = TRUE)
+    stats$lower <- apply(bootstrap.measures.dist, 1, quantile, type = 1, prob = alpha/2, na.rm = TRUE)
+    stats$upper <- apply(bootstrap.measures.dist, 1, quantile, type = 1, prob = 1-alpha/2, na.rm = TRUE)
   }
+
+  rownames(bootstrap.measures.dist) <- stats$measure
+
 
   out <- list(measures = stats,
               roc = ss$roc,
               data.for.measures = as.tibble(risk_dat.si),
               call = call,
-              bootstrap.info = list(alpha = alpha, bootstraps))
+              bootstrap.info = list(alpha = alpha,
+                                    bootstraps = bootstraps,
+                                    bootstrap.distribution = bootstrap.measures.dist))
   class(out) = "pc_measures"
   return(out)
 
