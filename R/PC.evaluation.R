@@ -105,18 +105,35 @@ PC.evaluation <- function( pc.object,
 
   #define some variables
   landmark.time <- conditioning.time.window[2] + prediction.time
-
   meas.time.name <- pc.object$variable.names[[4]]
 
+  
+  timevar.name <- pc.object$variable.names[[2]]
+  status.name <- pc.object$variable.names[[3]]
+  
+  dc <- list(ti = landmark.time,
+             pred.time = prediction.time,
+             si = conditioning.time.window[2])
+  
+  newdata2 <- subset(newdata, newdata[[timevar.name]] <= conditioning.time.window[2])
+  
+  #filter out all observations with survival times less than conditioning time[2]. print a
+  #message if silent is not TRUE
+  if(!silent & nrow(newdata2) < nrow(newdata) ){
+    cat(paste0("... removing ",  nrow(newdata) - nrow(newdata2) , " observations where outcome time ", timevar.name, " is less than conditioning.time.window = ", conditioning.time.window[2], ".\n"))
+  }
+  
   #filter out all measurement times greater than conditioning time. print a
   #message if silent is not TRUE
-  newdata.si <- subset(newdata, newdata[[meas.time.name]] <= conditioning.time.window[2])
-
-  if(!silent & nrow(newdata.si) < nrow(newdata) ){
+  newdata.si <- subset(newdata2, newdata2[[meas.time.name]] <= conditioning.time.window[2])
+  
+  if(!silent & nrow(newdata.si) < nrow(newdata2) ){
    cat(paste0("... removing ",  nrow(newdata) - nrow(newdata.si) , " observations where ", meas.time.name, " is greater than conditioning.time.window = ", conditioning.time.window[2], ".\n"))
   }
+  rm(newdata2)
 
-
+ 
+  
   #get predicted risks on new data
 
   risk_dat  <- predict(pc.object, newdata = newdata.si, prediction.time = prediction.time)
@@ -127,12 +144,6 @@ PC.evaluation <- function( pc.object,
     cat(paste0("... calculating summary measures using ", nrow(risk_dat.si), " observations with measurement times within the conditioning time window  [", paste(conditioning.time.window, collapse = ", " ), "].\n"))
   }
   #
-  dc <- list(ti = landmark.time,
-             pred.time = prediction.time,
-             si = conditioning.time.window[2])
-
-  timevar.name <- pc.object$variable.names[[2]]
-  status.name <- pc.object$variable.names[[3]]
 
   ss <- get.stats(dc = dc,
             risk_dat.si = risk_dat.si,
