@@ -3,7 +3,7 @@ get.stats <- function(dc, risk_dat.si,
                        risk.threshold,  pcf.threshold, pnf.threshold){
 
   #get d.pred
-
+#browser()
   d.pred <- get.d.pred(dc = dc,
                        timevar = risk_dat.si[[timevar.name]],
                        eventvar =  risk_dat.si[[status.name]],
@@ -56,9 +56,9 @@ get.stats <- function(dc, risk_dat.si,
 get.d.pred <- function(dc, timevar, xi_var, eventvar, risk){
 
 
-  ix.case <- (timevar <= dc$ti) & (eventvar == 1)
-  ix.ctrl <- (timevar > dc$ti)
-  ix.cens <- (timevar <= dc$ti) & (eventvar == 0)
+  ix.case <- (xi_var <= dc$pred.time) & (eventvar == 1)
+  ix.ctrl <- (xi_var > dc$pred.time)
+  ix.cens <- (xi_var <= dc$pred.time) & (eventvar == 0)
 
 
   #get.censoring.weights is function below
